@@ -60,6 +60,7 @@
             text-align: center;
             border: 1px solid rgba(255, 107, 0, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
         }
         
         .metric-card:hover {
@@ -188,6 +189,20 @@
         .brand-puma { color: #44ff44; }
         .brand-other { color: #4444ff; }
         
+        /* Tooltip personalizado */
+        .custom-tooltip {
+            position: fixed;
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            z-index: 9999;
+            font-size: 1em;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            max-width: 260px;
+        }
+        
         @media (max-width: 768px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -241,6 +256,9 @@
                 <div class="metric-change positive">+0.3 vs 2023</div>
             </div>
         </div>
+        
+        <!-- Botón para insights -->
+        <button id="toggle-insights" style="margin-bottom:15px;padding:8px 18px;border-radius:6px;background:#ff6b00;color:#fff;border:none;cursor:pointer;">Mostrar/Ocultar Insights</button>
         
         <!-- Gráficos -->
         <div class="charts-grid">
@@ -358,6 +376,44 @@
     </div>
     
     <script>
+        // Interactividad: Mostrar/Ocultar Insights
+        document.getElementById('toggle-insights').onclick = function() {
+            const sections = document.querySelectorAll('.insights-section');
+            sections.forEach(sec => {
+                sec.style.display = (sec.style.display === 'none' ? '' : 'none');
+            });
+        };
+
+        // Interactividad: Tooltips en tarjetas de métricas
+        document.querySelectorAll('.metric-card').forEach(card => {
+            card.addEventListener('mouseenter', function(e) {
+                let tooltip = document.createElement('div');
+                tooltip.className = 'custom-tooltip';
+                tooltip.style.position = 'fixed';
+                tooltip.style.background = 'rgba(0,0,0,0.85)';
+                tooltip.style.color = '#fff';
+                tooltip.style.padding = '8px 16px';
+                tooltip.style.borderRadius = '8px';
+                tooltip.style.top = (e.clientY + 10) + 'px';
+                tooltip.style.left = (e.clientX + 10) + 'px';
+                tooltip.style.zIndex = 9999;
+                tooltip.style.fontSize = '1em';
+                tooltip.innerText = card.querySelector('.metric-label').innerText + ': ' + card.querySelector('.metric-value').innerText;
+                document.body.appendChild(tooltip);
+
+                function moveEvent(moveE) {
+                    tooltip.style.top = (moveE.clientY + 10) + 'px';
+                    tooltip.style.left = (moveE.clientX + 10) + 'px';
+                }
+                card.addEventListener('mousemove', moveEvent);
+
+                card.addEventListener('mouseleave', function() {
+                    if (tooltip) tooltip.remove();
+                    card.removeEventListener('mousemove', moveEvent);
+                }, { once: true });
+            });
+        });
+
         // Configuración de colores Adidas
         const adidasColors = {
             primary: '#ff6b00',
